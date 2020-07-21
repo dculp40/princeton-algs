@@ -25,13 +25,13 @@ public class Board {
         }
     }
 
-    //private constructor for making copies in twin() neighbors()
+    // private constructor for making copies in twin() neighbors()
     private Board(int n, int[] tiles) {
         this.n = n;
         this.board = tiles.clone();
     }
 
-    //return tile at row, col
+    // return tile at row, col
     private int tileAt(int row, int col) {
         return board[row * n + col % n];
     }
@@ -40,17 +40,17 @@ public class Board {
         board[row * n + col % n] = val;
     }
 
-    //returns the row of a given flat-array index
+    // returns the row of a given flat-array index
     private int rowOf(int index) {
         return index / n;
     }
 
-    //returns the column of a given flat-array index
+    // returns the column of a given flat-array index
     private int colOf(int index) {
         return index % n;
     }
 
-    //exchange two tiles
+    // exchange two tiles
     private void exch(int row1, int col1, int row2, int col2) {
         int temp = tileAt(row1, col1);
         setTileAt(row1, col1, tileAt(row2, col2));
