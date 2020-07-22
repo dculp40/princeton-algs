@@ -10,7 +10,6 @@ import edu.princeton.cs.algs4.Stack;
 
 public class Solver {
     private Node orig;
-    private Node twin;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
@@ -22,15 +21,17 @@ public class Solver {
         tPQ.insert(new Node(initial.twin(), 0, null));
 
         orig = oPQ.delMin();
-        twin = tPQ.delMin();
-        while (!orig.b.isGoal() && twin.b.isGoal()) {
+        Node twin = tPQ.delMin();
+        while (!orig.b.isGoal() && !twin.b.isGoal()) {
             for (Board neighbor : orig.b.neighbors()) {
-                oPQ.insert(new Node(neighbor, orig.moves + 1, orig));
+                if (orig.moves < 1 || !neighbor.equals(orig.prev.b))
+                    oPQ.insert(new Node(neighbor, orig.moves + 1, orig));
             }
             orig = oPQ.delMin();
 
             for (Board neighbor : twin.b.neighbors()) {
-                tPQ.insert(new Node(neighbor, twin.moves + 1, twin));
+                if (twin.moves < 1 || !neighbor.equals(twin.prev.b))
+                    tPQ.insert(new Node(neighbor, twin.moves + 1, twin));
             }
             twin = tPQ.delMin();
         }
@@ -42,15 +43,17 @@ public class Solver {
         Board b;
         int moves;
         Node prev;
+        int distance;
 
         public Node(Board b, int moves, Node prev) {
             this.b = b;
             this.moves = moves;
             this.prev = prev;
+            this.distance = b.manhattan();
         }
 
         public int compareTo(Node that) {
-            return this.b.hamming() - that.b.hamming();
+            return this.distance + this.moves - that.distance - that.moves;
         }
     }
 
