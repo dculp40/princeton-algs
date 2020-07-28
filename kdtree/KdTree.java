@@ -9,10 +9,10 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.StdRandom;
 
 public class KdTree {
     private Node tree;
+    private int size;
 
     // construct an empty tree of points
     public KdTree() {
@@ -41,19 +41,23 @@ public class KdTree {
 
     // number of points in the set
     public int size() {
-        return size(tree);
+        return size;
     }
 
-    // recursive tree size
+    /* / recursive tree size
     private int size(Node n) {
         if (n.p == null) return 0;
         return 1 + size(n.lb) + size(n.rt);
     }
+    */
 
     // add the point to the set (if it is not already in the set)
     public void insert(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
-        if (!contains(p)) tree = insert(p, tree, 0);
+        if (!contains(p)) {
+            tree = insert(p, tree, 0);
+            size++;
+        }
     }
 
     private Node insert(Point2D p, Node n, int level) {
@@ -79,24 +83,6 @@ public class KdTree {
 
         return n;
     }
-/*
-    // old recursive tree insert
-    private Node insert(Point2D p, Node n, int level) {
-        if (n == null) return new Node(p);
-
-        if (level % 2 == 0) { // even level, compare x
-            if (p.x() < n.p.x()) n.lb = insert(p, n.lb, level + 1);
-            else n.rt = insert(p, n.rt, level + 1);
-        }
-        else { // odd level, compare y
-            if (p.y() < n.p.y()) n.lb = insert(p, n.lb, level + 1);
-            else n.rt = insert(p, n.rt, level + 1);
-        }
-
-        return n;
-    }
-
- */
 
     // does the set contain point p?
     public boolean contains(Point2D p) {
@@ -173,30 +159,34 @@ public class KdTree {
     // recursive nearest
     private Point2D nearest(Point2D p, Node n, Point2D champ) {
         if (n.p == null) return null;
-        if (n.r.distanceTo(p) > p.distanceTo(champ))
+        if (n.r.distanceSquaredTo(p) > p.distanceSquaredTo(champ))
             return null; // this subtree cannot contain champ
-
-        if (n.p.distanceTo(p) < p.distanceTo(champ)) champ = n.p;
+        if (n.p.distanceSquaredTo(p) < p.distanceSquaredTo(champ)) champ = n.p;
 
         Point2D trialPoint;
         // double trialDist;
-        if (n.lb.r.contains(p)) { // left side is closer to query point
+        if (n.lb.r.distanceSquaredTo(p) < n.rt.r
+                .distanceSquaredTo(p)) { // left side is closer to query point
             trialPoint = nearest(p, n.lb, champ); // get left champ
-            if (trialPoint != null && trialPoint.distanceTo(p) < p.distanceTo(champ)) {
+            if (trialPoint != null && trialPoint.distanceSquaredTo(p) < p
+                    .distanceSquaredTo(champ)) {
                 champ = trialPoint;
             }
             trialPoint = nearest(p, n.rt, champ); // get right champ
-            if (trialPoint != null && trialPoint.distanceTo(p) < p.distanceTo(champ)) {
+            if (trialPoint != null && trialPoint.distanceSquaredTo(p) < p
+                    .distanceSquaredTo(champ)) {
                 champ = trialPoint;
             }
         }
         else { // right side is closer
             trialPoint = nearest(p, n.rt, champ); // get right champ
-            if (trialPoint != null && trialPoint.distanceTo(p) < p.distanceTo(champ)) {
+            if (trialPoint != null && trialPoint.distanceSquaredTo(p) < p
+                    .distanceSquaredTo(champ)) {
                 champ = trialPoint;
             }
             trialPoint = nearest(p, n.lb, champ); // get left champ
-            if (trialPoint != null && trialPoint.distanceTo(p) < p.distanceTo(champ)) {
+            if (trialPoint != null && trialPoint.distanceSquaredTo(p) < p
+                    .distanceSquaredTo(champ)) {
                 champ = trialPoint;
             }
         }
@@ -209,20 +199,20 @@ public class KdTree {
     public static void main(String[] args) {
         KdTree pTree = new KdTree();
 
-
+/*
         for (int i = 0; i < 10; i++) {
             pTree.insert(
                     new Point2D(StdRandom.uniform(0.0, 1.0), StdRandom.uniform(0.0, 1.0)));
         }
 
-        /*
+ */
+
+
         pTree.insert(new Point2D(.7, .2));
         pTree.insert(new Point2D(.5, .4));
         pTree.insert(new Point2D(.2, .3));
         pTree.insert(new Point2D(.4, .7));
         pTree.insert(new Point2D(.9, .6));
-         */
-
 
         pTree.draw();
 
@@ -237,12 +227,12 @@ public class KdTree {
         }
 
 
-        StdOut.println("Closest to (0.5, 0.5):");
-        Point2D nearest = pTree.nearest(new Point2D(0.5, 0.5));
+        StdOut.println("Closest to (0.82, 0.38):");
+        Point2D nearest = pTree.nearest(new Point2D(0.82, 0.38));
         StdOut.println(nearest.toString());
 
         StdDraw.setPenColor(StdDraw.GREEN);
-        StdDraw.line(.5, .5, nearest.x(), nearest.y());
+        StdDraw.line(0.82, 0.38, nearest.x(), nearest.y());
 
 
     }
